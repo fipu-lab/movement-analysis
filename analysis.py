@@ -13,14 +13,20 @@ for fname in os.listdir("data"):
     record = SimpleNamespace()
     record.filename = fname
     record.df = pd.read_csv(os.path.join("data", fname))
-    record.df.fillna(0)
+    record.df.fillna(0, inplace=True)
     match = pattern.match(fname)
+    if match is None:
+        continue
     record.type = match.group("type")
     record.cam = match.group("cam")
     data[record.cam][record.type] = record
 
 for camera, record in data.items():
     print(f"Analysis for camera {camera}...")
+
+    if "active" not in record or "inactive" not in record:
+        print(f"Camera {camera}: grupos 'active'/'inactive' ausentes, pulando.")
+        continue
 
     active, inactive = (
         record["active"].df["result"].values,
